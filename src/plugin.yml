@@ -1,0 +1,8 @@
+main: me.Athereo.SHSMP.Main
+name: SHSMP
+version: 1.0.0
+author: Athereo
+api-version: 1.13
+
+commands:
+    Hello:

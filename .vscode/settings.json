@@ -1,0 +1,12 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar"
+        ],
+        "exclude": [
+            "lib/gson-2.8.6.jar",
+            "lib/converter-gson-2.9.0.jar",
+            "lib/retrofit-2.9.0.jar"
+        ]
+    }
+}
