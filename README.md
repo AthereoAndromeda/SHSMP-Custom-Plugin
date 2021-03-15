@@ -1,14 +1,4 @@
-## Getting Started
+# SHSMP Plugin
+This is a custom plugin for Semi-Hardcore Survival Multiplayer Worlds.
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
-
-## Folder Structure
-
-The workspace contains two folders by default, where:
-
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
-
-## Dependency Management
-
-The `JAVA DEPENDENCIES` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-pack/blob/master/release-notes/v0.9.0.md#work-with-jar-files-directly).
+Sends a webhook of when a player has been resurrected and has some utilities specific to the SHSMP.
