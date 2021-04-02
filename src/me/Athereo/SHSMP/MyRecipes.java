@@ -1,15 +1,21 @@
 package me.Athereo.SHSMP;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 /**
  * Some Recipes cuz hell yeah
@@ -37,7 +43,7 @@ public class MyRecipes {
             NamespacedKey key = new NamespacedKey(plugin, "light_golden_apple");
             ShapedRecipe lightGappleRecipe = new ShapedRecipe(key, lightGapple);
             
-            // G is Gapple, S = Stick
+            // G is Gold ingot, S = Stick
             lightGappleRecipe.shape(
                 " G ",
                 "GAG",
@@ -60,20 +66,40 @@ public class MyRecipes {
         private ItemStack item;
 
         public RevivalBook() {
-            ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-            BookMeta bookMeta = (BookMeta) book.getItemMeta();
+            // ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+            // BookMeta bookMeta = (BookMeta) book.getItemMeta();
 
-            List<String> pages = new ArrayList<String>();
-            pages.add("hehe peepee poopoo");
-            pages.add("Im high as a kite");
+            ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
+            BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
+    
+            for (Player onlplayer : Bukkit.getOnlinePlayers()) {
+                String content = ChatColor.translateAlternateColorCodes('&', "&b" + onlplayer.getDisplayName() + "&r\n\n Revive This person");
 
+                BaseComponent[] page = new ComponentBuilder(content)
+                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:test " + onlplayer.getUniqueId()))
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Revive this player?")))
+                    .create();
+    
+                //add the page to the meta
+                bookMeta.spigot().addPage(page);
+            }
+            
+            BaseComponent[] refreshPage = new ComponentBuilder("Refresh")
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:refresh " + plugin.getConfig().getString("Password")))
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Refresh the book")))
+                .create();
+    
+            bookMeta.spigot().addPage(refreshPage);
+    
+            //set the title and author of this book
             bookMeta.setAuthor("SHSMP");
             bookMeta.setTitle("Necronomicon");
-            bookMeta.setPages(pages);
-            book.setItemMeta(bookMeta);
+    
+            //update the ItemStack with this new meta
+            writtenBook.setItemMeta(bookMeta);
 
             NamespacedKey key = new NamespacedKey(plugin, "necronomicon");
-            ShapedRecipe recipe = new ShapedRecipe(key, book);
+            ShapedRecipe recipe = new ShapedRecipe(key, writtenBook);
             // G = ench gapple, B = book
             recipe.shape(
                 "GGG",
@@ -83,7 +109,7 @@ public class MyRecipes {
             recipe.setIngredient('G', Material.ENCHANTED_GOLDEN_APPLE);
             recipe.setIngredient('B', Material.BOOK);
 
-            this.item = book;
+            this.item = writtenBook;
             this.recipe = recipe;
         }
 
