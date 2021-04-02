@@ -1,8 +1,12 @@
 main: me.Athereo.SHSMP.Main
 name: SHSMP
-version: 1.0.2
+description: Resurrection and Revivals
 author: Athereo
-api-version: 1.13
+prefix: shsmp
+version: 1.0.0
+api-version: 1.16
 
 commands:
     Hello:
+    test:
+    refresh:
