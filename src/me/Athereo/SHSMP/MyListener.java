@@ -17,16 +17,17 @@ public class MyListener implements Listener {
 
 	public MyListener(JavaPlugin plugin) {
 		this.plugin = plugin;
-		this.recipes = new MyRecipes(this.plugin);
+		this.recipes = new MyRecipes(plugin);
 	}
 
     @EventHandler
     public void onCraft(CraftItemEvent event) throws Exception {
+		System.out.println(plugin.getConfig().getString("Discord Webhook"));
         if (event.isCancelled() || !(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
 		
-		if (event.getRecipe().getResult().isSimilar(recipes.new RevivalBook().getItem())) {
+		if (event.getRecipe().getResult().equals(recipes.new RevivalBook().getItem())) {
 			Player player = (Player) event.getWhoClicked();
 			String msg = ChatColor.translateAlternateColorCodes('&', "&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
 			
@@ -55,7 +56,7 @@ public class MyListener implements Listener {
     private void sendWebhook(CraftItemEvent event) throws Exception {
 		Player player = (Player) event.getWhoClicked();
 
-        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/808972536774656010/vrB_4q8YxaRN2KQRwBngOQ38unspjWj5p7Zm4mRbM5flxKeqTnp_4KVvKnT0kTNF-ZQ_");
+        DiscordWebhook webhook = new DiscordWebhook(plugin.getConfig().getString("Discord Webhook"));
 		EmbedObject embed = new EmbedObject()
 			.setTitle(player.getName() + " has Crafted a Necronomicon!")
 			.setDescription("A player can now be revived!");
