@@ -66,17 +66,20 @@ public class MyRecipes {
         private ItemStack item;
 
         public RevivalBook() {
-            // ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-            // BookMeta bookMeta = (BookMeta) book.getItemMeta();
-
             ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
             BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
+
+            BaseComponent[] firstPage = new ComponentBuilder("The Necronomicon")
+                .create();
+
+            bookMeta.spigot().addPage(firstPage);
     
             for (Player onlplayer : Bukkit.getOnlinePlayers()) {
-                String content = ChatColor.translateAlternateColorCodes('&', "&b" + onlplayer.getDisplayName() + "&r\n\n Revive This person");
+                String content = onlplayer.isDead() ? "Player is Dead" : "Player still Alive";
+                String coloredContent = ChatColor.translateAlternateColorCodes('&', onlplayer.getDisplayName() + "\n\n" + content);
 
-                BaseComponent[] page = new ComponentBuilder(content)
-                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:test " + onlplayer.getUniqueId()))
+                BaseComponent[] page = new ComponentBuilder(coloredContent)
+                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:revive " + onlplayer.getUniqueId()))
                     .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Revive this player?")))
                     .create();
     
@@ -85,7 +88,7 @@ public class MyRecipes {
             }
             
             BaseComponent[] refreshPage = new ComponentBuilder("Refresh")
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:refresh " + plugin.getConfig().getString("Password")))
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:refresh"))
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Refresh the book")))
                 .create();
     
@@ -100,12 +103,22 @@ public class MyRecipes {
 
             NamespacedKey key = new NamespacedKey(plugin, "necronomicon");
             ShapedRecipe recipe = new ShapedRecipe(key, writtenBook);
+
             // G = ench gapple, B = book
-            recipe.shape(
-                "GGG",
-                "GBG",
-                "GGG"
-            );
+            if (plugin.getConfig().getBoolean("Light Necronomicon")) {
+                recipe.shape(
+                    " G ",
+                    "GBG",
+                    " G "
+                );
+            } else {
+                recipe.shape(
+                    "GGG",
+                    "GBG",
+                    "GGG"
+                );
+            }
+
             recipe.setIngredient('G', Material.ENCHANTED_GOLDEN_APPLE);
             recipe.setIngredient('B', Material.BOOK);
 
