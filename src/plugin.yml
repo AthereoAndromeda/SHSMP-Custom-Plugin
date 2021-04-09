@@ -2,11 +2,10 @@ main: me.Athereo.SHSMP.Main
 name: SHSMP
 description: Resurrection and Revivals
 author: Athereo
-prefix: shsmp
-version: 0.0.1
+prefix: SHSMP
+version: 0.0.2
 api-version: 1.16
 
 commands:
-    Hello:
-    test:
+    revive:
     refresh:
