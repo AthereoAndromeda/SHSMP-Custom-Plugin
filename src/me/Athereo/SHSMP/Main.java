@@ -1,24 +1,19 @@
 package me.Athereo.SHSMP;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+import me.Athereo.SHSMP.DiscordWebhook.EmbedObject;
 
 public class Main extends JavaPlugin {
     public FileConfiguration config;
@@ -41,90 +36,76 @@ public class Main extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-         
-        if (label.equalsIgnoreCase("hello")) {
-			if (sender instanceof Player) {
-				Player player = (Player) sender;
 
-				if (player.hasPermission("hello.use")) {
-					player.sendMessage("Ayy look at dis bewk");
-                    // Bukkit.broadcastMessage("broadcastMessage");
-                    // Bukkit.getServer().broadcastMessage("getserver Broadcastmsg");
-
-                    player.getInventory().setItemInMainHand(recipes.new RevivalBook().getItem());
-					return true;
-				}
-
-				player.sendMessage("Heyy friendo. sorry but you hab no perms :(");
-				return true;
-			} else {
-				sender.sendMessage("Hey console");
-				return true;
-			}
-		}
-
-        if (label.equalsIgnoreCase("shsmp:test")) {
+        // Revives dead player
+        if (label.equalsIgnoreCase("shsmp:revive")) {
             System.out.println(config.get("Discord Webhook"));
 
             if (sender instanceof Player) {
+                // Gets player
                 Player player = Bukkit.getPlayer(UUID.fromString(args[0]));
+                Player sendingPlayer = (Player) sender;
                 player.setGameMode(GameMode.SURVIVAL);
+
+                DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("Discord Webhook"));
+                EmbedObject embed = new EmbedObject()
+                    .setTitle(player.getDisplayName() + " Has been Resurrected!")
+                    .setDescription("Revived by " + sendingPlayer.getDisplayName());
+
+                webhook.addEmbed(embed);
+
+                try {
+                    webhook.execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return true;
             }
         }
 
+        // Refreshes and updates book
         if (label.equalsIgnoreCase("shsmp:refresh")) {
-            System.out.println(config.getString("Password"));
-            if (args[0] == null && args[0] != config.getString("Password")) {
-                sender.sendMessage("Unauthorized");
-                return false;
+            String necroOnly = "You can only use this command through the Necronomicon!";
+
+            // If sender is a console or non-player
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("Only a Player can use this command");
+                return true;
             }
 
-            if (sender instanceof Player) {
-                Player player = (Player) sender;
-                player.getInventory().setItemInMainHand(recipes.new RevivalBook().getItem());
-            }
+            Player player = (Player) sender;
+            ItemStack necronomicon = recipes.new RevivalBook().getItem();
+            ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
 
+            String itemInHandName = itemInMainHand.hasItemMeta() 
+                ? itemInMainHand.getItemMeta().getDisplayName()
+                : null;
+            
+            // Checks if player is already holding Necronomicon
+            if (itemInHandName == null || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName())) {
+                System.out.println("Not Necro");
+                sender.sendMessage(necroOnly);
+                return true;
+            }
+            
+            // Refreshes the Necronomicon by giving the player a new one
+            player.getInventory().setItemInMainHand(necronomicon);
+            return true;
         }
 
         return false;
     }
 
+    /**
+     * Handles The config.yml setup
+     */
     private void configFileHandler() {
         config.addDefault("Discord Webhook", "Insert Webhook here");
-        config.addDefault("Password", "password");
+        config.addDefault("Light Necronomicon", false);
+
         config.options().copyDefaults(true);
         saveConfig();
-    }
-
-    private ItemStack createBook() {
-        ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
-        BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
-
-        for (Player onlplayer : Bukkit.getOnlinePlayers()) {
-            BaseComponent[] page = new ComponentBuilder(onlplayer.getDisplayName())
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/test " + onlplayer.getUniqueId()))
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Revive this player?")))
-                .create();
-
-            //add the page to the meta
-            bookMeta.spigot().addPage(page);
-        }
-
-        BaseComponent[] refreshPage = new ComponentBuilder("Refresh")
-            .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:refresh"))
-            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Refresh the book")))
-            .create();
-
-        bookMeta.spigot().addPage(refreshPage);
-
-        //set the title and author of this book
-        bookMeta.setTitle("Bruh");
-        bookMeta.setAuthor("ree");
-
-        //update the ItemStack with this new meta
-        writtenBook.setItemMeta(bookMeta);
-
-        return writtenBook;
     }
 
 }
