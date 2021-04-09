@@ -23,11 +23,14 @@ public class MyListener implements Listener {
     @EventHandler
     public void onCraft(CraftItemEvent event) throws Exception {
 		System.out.println(plugin.getConfig().getString("Discord Webhook"));
+		// System.out.println(event.getRecipe().hashCode());
+		// System.out.println(recipes.new RevivalBook().getRecipe().hashCode());
+
         if (event.isCancelled() || !(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
 		
-		if (event.getRecipe().getResult().equals(recipes.new RevivalBook().getItem())) {
+		if (event.getRecipe().getResult().getItemMeta().getDisplayName() == recipes.new RevivalBook().getItem().getItemMeta().getDisplayName()) {
 			Player player = (Player) event.getWhoClicked();
 			String msg = ChatColor.translateAlternateColorCodes('&', "&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
 			
