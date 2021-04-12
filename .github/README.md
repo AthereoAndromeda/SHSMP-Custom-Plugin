@@ -1,5 +1,5 @@
 # SHSMP Plugin
-A custom plugin for Semi-Hardcore Survival Multiplayer Worlds.
+A custom Spigot plugin for Semi-Hardcore Survival Multiplayer Worlds.
 
 Pure Hardcore worlds can be hard to sustain and keep alive with a small community, whereas
 a Survival world can be too relaxed or casual for more experienced players. So to strike the
@@ -32,15 +32,20 @@ You can change the recipe to 4 Ench Gapples instead though in `config.yml`
 This book contains all the names of dead players. Clicking on the name will revive and spawn them
 on a specific location or the player who revived them depending on the `config.yml` configuration.
 
+## Prerequisites
+* Spigot or Paper Server
+* Should work from 1.8+, but only tested for 1.16
+* That's really it
+
 ## Configuration
 There are multiple elements that you can customize or change in `config.yml` once the `SHSMP` folder has
 been created:
 ___
-### Discord Webhook
+### DiscordWebhook
 **Type:** `String`  
 Sends a message whenever a Necronomicon has been crafted or used via Discord Webhook
 
-### Light Necronomicon
+### LightNecronomicon
 **Type:** `Boolean`  
 **Default:** `false`  
 Set to `true` to make Necronomicon recipe use 4 Ench Gapples rather than 8.
