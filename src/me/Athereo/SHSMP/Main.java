@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,12 +14,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
 
 import me.Athereo.SHSMP.DiscordWebhook.EmbedObject;
 
 public class Main extends JavaPlugin {
     public FileConfiguration config;
     public MyRecipes recipes;
+    public Scoreboard scoreboard;
 
     @Override
     public void onEnable() {
@@ -25,13 +29,23 @@ public class Main extends JavaPlugin {
         this.recipes = new MyRecipes(this);
         configFileHandler();
 
-        // Adds the events
+        // TODO fix team assignment
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        scoreboard.registerNewTeam("Dead");
+        scoreboard.registerNewTeam("Alive");
+
+        scoreboard.getTeam("Dead").setPrefix("[Dead]");
+        scoreboard.getTeam("Alive").setPrefix("[Alive]");
+
+        // Adds the event handlers
         PluginManager bukkitPluginManager = Bukkit.getPluginManager();
         bukkitPluginManager.registerEvents(new MyListener(this), this);
 
         // Add Recipes
         Bukkit.addRecipe(recipes.new LightGapple().getRecipe());
-        Bukkit.addRecipe(recipes.new RevivalBook().getRecipe());
+        Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());
+        
+        this.scoreboard = scoreboard;
     }
 
     @Override
@@ -39,21 +53,38 @@ public class Main extends JavaPlugin {
 
         // Revives dead player
         if (label.equalsIgnoreCase("shsmp:revive")) {
-            System.out.println(config.get("Discord Webhook"));
-
             if (sender instanceof Player) {
                 // Gets player
-                Player player = Bukkit.getPlayer(UUID.fromString(args[0]));
-                Player sendingPlayer = (Player) sender;
-                player.setGameMode(GameMode.SURVIVAL);
+                Player revivedPlayer = Bukkit.getPlayer(UUID.fromString(args[0]));
+                Player revivingPlayer = (Player) sender;
 
-                DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("Discord Webhook"));
+                // Assign player to Alive team
+                scoreboard.getTeam("Dead").removeEntry(revivedPlayer.getDisplayName());
+                scoreboard.getTeam("Alive").addEntry(revivedPlayer.getDisplayName());        
+
+                // Teleport revivedPlayer to revivingPlayer
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
+
+                // Changes gamemode which "revives" the player. Also sets them to max health and hunger
+                revivedPlayer.setGameMode(GameMode.SURVIVAL);
+                revivedPlayer.setHealth(revivedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                revivedPlayer.setFoodLevel(20);
+
+                // Replace Necronomicon with Used Necronomicon
+                revivingPlayer.getInventory().setItemInMainHand(recipes.new UsedNecronomicon(revivedPlayer, revivingPlayer).getItem());
+
+                // Broadcast Message that someone has been revived
+                String revivedMessage = ChatColor.translateAlternateColorCodes('&', "&b" + revivedPlayer.getDisplayName() + " was revived by " + revivingPlayer.getDisplayName());
+                Bukkit.broadcastMessage(revivedMessage);
+
+                DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("DiscordWebhook"));
                 EmbedObject embed = new EmbedObject()
-                    .setTitle(player.getDisplayName() + " Has been Resurrected!")
-                    .setDescription("Revived by " + sendingPlayer.getDisplayName());
+                    .setTitle(revivedPlayer.getDisplayName() + " Has been Resurrected!")
+                    .setDescription("Revived by " + revivingPlayer.getDisplayName());
 
                 webhook.addEmbed(embed);
 
+                // Send Discord Webhook that someone has been revived
                 try {
                     webhook.execute();
                 } catch (IOException e) {
@@ -66,8 +97,6 @@ public class Main extends JavaPlugin {
 
         // Refreshes and updates book
         if (label.equalsIgnoreCase("shsmp:refresh")) {
-            String necroOnly = "You can only use this command through the Necronomicon!";
-
             // If sender is a console or non-player
             if (!(sender instanceof Player)) {
                 sender.sendMessage("Only a Player can use this command");
@@ -75,7 +104,8 @@ public class Main extends JavaPlugin {
             }
 
             Player player = (Player) sender;
-            ItemStack necronomicon = recipes.new RevivalBook().getItem();
+            String necroOnly = "You can only use this command through the Necronomicon!";
+            ItemStack necronomicon = recipes.new Necronomicon().getItem();
             ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
 
             String itemInHandName = itemInMainHand.hasItemMeta() 
@@ -84,12 +114,12 @@ public class Main extends JavaPlugin {
             
             // Checks if player is already holding Necronomicon
             if (itemInHandName == null || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName())) {
-                System.out.println("Not Necro");
                 sender.sendMessage(necroOnly);
                 return true;
             }
-            
-            // Refreshes the Necronomicon by giving the player a new one
+
+            // Refreshes the Necronomicon by giving the player a new updated one.
+            // pretty stupid but i dunno how to dynamically update an existing book.
             player.getInventory().setItemInMainHand(necronomicon);
             return true;
         }
@@ -101,11 +131,15 @@ public class Main extends JavaPlugin {
      * Handles The config.yml setup
      */
     private void configFileHandler() {
-        config.addDefault("Discord Webhook", "Insert Webhook here");
-        config.addDefault("Light Necronomicon", false);
+        config.addDefault("DiscordWebhook", "Insert Webhook here");
+        config.addDefault("LightNecronomicon", false);
 
         config.options().copyDefaults(true);
         saveConfig();
+    }
+
+    public Scoreboard getScoreboard() {
+        return this.scoreboard;
     }
 
 }
