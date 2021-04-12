@@ -1,5 +1,9 @@
 package me.Athereo.SHSMP;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -8,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -21,9 +24,9 @@ import net.md_5.bungee.api.chat.hover.content.Text;
  * Some Recipes cuz hell yeah
  */
 public class MyRecipes {
-    private JavaPlugin plugin;
+    private Main plugin;
 
-    public MyRecipes(JavaPlugin plugin) {
+    public MyRecipes(Main plugin) {
         this.plugin = plugin;    
     }
 
@@ -43,7 +46,7 @@ public class MyRecipes {
             NamespacedKey key = new NamespacedKey(plugin, "light_golden_apple");
             ShapedRecipe lightGappleRecipe = new ShapedRecipe(key, lightGapple);
             
-            // G is Gold ingot, S = Stick
+            // G = Gold ingot, A = Apple
             lightGappleRecipe.shape(
                 " G ",
                 "GAG",
@@ -61,11 +64,14 @@ public class MyRecipes {
         }
     }
 
-    public class RevivalBook {
+    /**
+     * Necronomicon to Resurrect and Revive players
+     */
+    public class Necronomicon {
         private ShapedRecipe recipe;
         private ItemStack item;
 
-        public RevivalBook() {
+        public Necronomicon() {
             ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
             BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
 
@@ -75,18 +81,23 @@ public class MyRecipes {
             bookMeta.spigot().addPage(firstPage);
     
             for (Player onlplayer : Bukkit.getOnlinePlayers()) {
-                String content = onlplayer.isDead() ? "Player is Dead" : "Player still Alive";
+                // TODO store time person died
+                String content = "Time died to be set soon";
                 String coloredContent = ChatColor.translateAlternateColorCodes('&', onlplayer.getDisplayName() + "\n\n" + content);
 
-                BaseComponent[] page = new ComponentBuilder(coloredContent)
-                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:revive " + onlplayer.getUniqueId()))
-                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Revive this player?")))
-                    .create();
+                // Only adds dead players
+                if (onlplayer.isDead()) {
+                    BaseComponent[] page = new ComponentBuilder(coloredContent)
+                        .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:revive " + onlplayer.getUniqueId()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Revive this player?")))
+                        .create();
+
+                    // add the page to the meta
+                    bookMeta.spigot().addPage(page);
+                }
     
-                //add the page to the meta
-                bookMeta.spigot().addPage(page);
             }
-            
+
             BaseComponent[] refreshPage = new ComponentBuilder("Refresh")
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/shsmp:refresh"))
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Refresh the book")))
@@ -105,7 +116,7 @@ public class MyRecipes {
             ShapedRecipe recipe = new ShapedRecipe(key, writtenBook);
 
             // G = ench gapple, B = book
-            if (plugin.getConfig().getBoolean("Light Necronomicon")) {
+            if (plugin.getConfig().getBoolean("LightNecronomicon")) {
                 recipe.shape(
                     " G ",
                     "GBG",
@@ -132,6 +143,46 @@ public class MyRecipes {
 
         public ShapedRecipe getRecipe() {
             return this.recipe;
+        }
+    }
+
+    /**
+     * Represents a used or deactivated Necronomicon
+     */
+    public class UsedNecronomicon {
+        private ItemStack item;
+
+        public UsedNecronomicon(Player revivedPlayer, Player revivingPlayer) {
+            ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+            BookMeta bookMeta = (BookMeta) book.getItemMeta();
+
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+            ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
+
+            BaseComponent[] firstPage = new ComponentBuilder("The Necronomicon")
+                .create();
+
+            String mainPageContent = revivedPlayer.getDisplayName() + " has been revived by " + revivingPlayer.getDisplayName() +
+                "\n\nRevived on " + dateFormatter.format(now);
+            
+            BaseComponent[] mainPage = new ComponentBuilder(mainPageContent)
+                .create();
+
+            bookMeta.spigot().addPage(firstPage);
+            bookMeta.spigot().addPage(mainPage);
+
+            //set the title and author of this book
+            bookMeta.setAuthor("SHSMP");
+            bookMeta.setTitle("Used Necronomicon");
+    
+            //update the ItemStack with this new meta
+            book.setItemMeta(bookMeta);
+
+            this.item = book;
+        }
+
+        public ItemStack getItem() {
+            return this.item;
         }
     }
 
