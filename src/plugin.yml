@@ -3,7 +3,7 @@ name: SHSMP
 description: Resurrection and Revivals
 author: Athereo
 prefix: SHSMP
-version: 0.0.3
+version: 0.0.4
 api-version: 1.16
 
 commands:
