@@ -108,6 +108,7 @@ public class MyRecipes {
             //set the title and author of this book
             bookMeta.setAuthor("SHSMP");
             bookMeta.setTitle("Necronomicon");
+            bookMeta.setDisplayName("The Necronomicon");
     
             //update the ItemStack with this new meta
             writtenBook.setItemMeta(bookMeta);
