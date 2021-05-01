@@ -14,14 +14,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Scoreboard;
 
 import me.Athereo.SHSMP.DiscordWebhook.EmbedObject;
 
 public class Main extends JavaPlugin {
     public FileConfiguration config;
     public MyRecipes recipes;
-    public Scoreboard scoreboard;
 
     @Override
     public void onEnable() {
@@ -30,12 +28,7 @@ public class Main extends JavaPlugin {
         configFileHandler();
 
         // TODO fix team assignment
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        scoreboard.registerNewTeam("Dead");
-        scoreboard.registerNewTeam("Alive");
 
-        scoreboard.getTeam("Dead").setPrefix("[Dead]");
-        scoreboard.getTeam("Alive").setPrefix("[Alive]");
 
         // Adds the event handlers
         PluginManager bukkitPluginManager = Bukkit.getPluginManager();
@@ -43,9 +36,7 @@ public class Main extends JavaPlugin {
 
         // Add Recipes
         Bukkit.addRecipe(recipes.new LightGapple().getRecipe());
-        Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());
-        
-        this.scoreboard = scoreboard;
+        Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());  
     }
 
     @Override
@@ -58,9 +49,6 @@ public class Main extends JavaPlugin {
                 Player revivedPlayer = Bukkit.getPlayer(UUID.fromString(args[0]));
                 Player revivingPlayer = (Player) sender;
 
-                // Assign player to Alive team
-                scoreboard.getTeam("Dead").removeEntry(revivedPlayer.getDisplayName());
-                scoreboard.getTeam("Alive").addEntry(revivedPlayer.getDisplayName());        
 
                 // Teleport revivedPlayer to revivingPlayer
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
@@ -108,10 +96,11 @@ public class Main extends JavaPlugin {
             ItemStack necronomicon = recipes.new Necronomicon().getItem();
             ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
 
+            // Checks if Item in hand has ItemMeta. If true, returns display name, else it returns null
             String itemInHandName = itemInMainHand.hasItemMeta() 
                 ? itemInMainHand.getItemMeta().getDisplayName()
                 : null;
-            
+
             // Checks if player is already holding Necronomicon
             if (itemInHandName == null || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName())) {
                 sender.sendMessage(necroOnly);
@@ -137,9 +126,4 @@ public class Main extends JavaPlugin {
         config.options().copyDefaults(true);
         saveConfig();
     }
-
-    public Scoreboard getScoreboard() {
-        return this.scoreboard;
-    }
-
 }
