@@ -5,10 +5,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -25,30 +27,14 @@ public class MyListener implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		Player player = event.getPlayer();
-
-		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-		scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
-
-
-        Team deadTeam = scoreboard.registerNewTeam("Dead");
-        Team aliveTeam = scoreboard.registerNewTeam("Alive");
-
-        deadTeam.setPrefix(ChatColor.DARK_RED + "[Dead] " + ChatColor.RESET);
-        aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
-
-		if (player.isDead()) {
-			deadTeam.addEntry(player.getName());
-		} else {
-			aliveTeam.addEntry(player.getName());
-		}
-
-		player.setScoreboard(scoreboard);
+		// Create scoreboard for player
+		// createScoreboard(event.getPlayer());
+		updateScoreboard();
 	}
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		System.out.println("Big sad gay left");
+		
 	}
 
     @EventHandler
@@ -65,24 +51,27 @@ public class MyListener implements Listener {
 		if (NecroName.equals(eventRecipeName)) {
 			Player player = (Player) event.getWhoClicked();
 			String msg = ChatColor.translateAlternateColorCodes('&', "&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
-			
+
 			Bukkit.broadcastMessage(msg);
 			sendWebhook(event);
 		}
 	}
 
 	@EventHandler
-	public void onKill(EntityDamageByEntityEvent event) {
-		System.out.println("Something Died");
-        if (event.isCancelled() || !(event.getEntity() instanceof Player)) {
+	public void onKill(PlayerDeathEvent event) {
+        if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
+
+		event.setDeathMessage("You are now dead, sad.");
+
 		System.out.println("A player died");
 
-		Player player = (Player) event.getEntity();
+		Player player = event.getEntity();
+
 		// Player killer = player.getKiller();
-
-
+		
+		createScoreboard(player);
 
 		// aliveTeam.removeEntry(player.getDisplayName());
 		// deadTeam.addEntry(player.getDisplayName());
@@ -91,7 +80,35 @@ public class MyListener implements Listener {
 		Bukkit.broadcastMessage("Big oof. " + player.getDisplayName() + " has died");
 	}
 
+	@EventHandler
+	public void onPlayerRespawn(PlayerRespawnEvent event) {
+		System.out.println("Respawned");
+		Player player = event.getPlayer();
+		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		// scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
 
+        Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
+
+        aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
+		aliveTeam.addEntry(player.getName());
+
+		player.setScoreboard(scoreboard);
+	}
+
+	@EventHandler
+	public void onServerLoad(ServerLoadEvent event) {
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team add SHSMP.Alive \"Alive Players\"");
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team add SHSMP.Dead \"Dead Players\"");
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team modify SHSMP.Alive color dark_aqua");
+		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team modify SHSMP.Dead color dark_red");
+	}
+
+
+	/**
+	 * Sends webhook when a necronomicon has been crafted.
+	 * @param event
+	 * @throws Exception
+	 */
     private void sendWebhook(CraftItemEvent event) throws Exception {
 		Player player = (Player) event.getWhoClicked();
 
@@ -103,4 +120,36 @@ public class MyListener implements Listener {
 		webhook.addEmbed(embed);
         webhook.execute();
     }
+
+	/**
+	 * Creates a scoreboard for the player
+	 * @param player
+	 */
+	private void createScoreboard(Player player) {
+		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		// scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
+
+        Team deadTeam = scoreboard.registerNewTeam("SHSMP.Dead");
+        Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
+
+        deadTeam.setPrefix(ChatColor.DARK_RED + "[Dead] " + ChatColor.RESET);
+        aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
+
+		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			if (onlinePlayer.isDead()) {
+				deadTeam.addEntry(player.getName());
+			} else {
+				aliveTeam.addEntry(player.getName());
+			}
+		}
+
+		player.setScoreboard(scoreboard);
+	}
+
+	private void updateScoreboard() {
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			createScoreboard(player);
+		}
+	}
+
 }
