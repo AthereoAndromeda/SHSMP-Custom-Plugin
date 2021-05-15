@@ -63,7 +63,7 @@ public class MyListener implements Listener {
 			return;
 		}
 
-		event.setDeathMessage("You are now dead, sad.");
+		event.setDeathMessage(ChatColor.RED + "You are now dead, sad.");
 
 		System.out.println("A player died");
 
@@ -71,7 +71,7 @@ public class MyListener implements Listener {
 
 		// Player killer = player.getKiller();
 		
-		createScoreboard(player);
+		updateScoreboard();
 
 		// aliveTeam.removeEntry(player.getDisplayName());
 		// deadTeam.addEntry(player.getDisplayName());
@@ -83,16 +83,17 @@ public class MyListener implements Listener {
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		System.out.println("Respawned");
-		Player player = event.getPlayer();
-		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		// Player player = event.getPlayer();
+		// Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		// scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
 
-        Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
+        // Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
 
-        aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
-		aliveTeam.addEntry(player.getName());
+        // aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
+		// aliveTeam.addEntry(player.getName());
 
-		player.setScoreboard(scoreboard);
+		// player.setScoreboard(scoreboard);
+		updateScoreboard();
 	}
 
 	@EventHandler
@@ -138,8 +139,10 @@ public class MyListener implements Listener {
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
 			if (onlinePlayer.isDead()) {
 				deadTeam.addEntry(player.getName());
+				Bukkit.broadcastMessage("Guy died");
 			} else {
 				aliveTeam.addEntry(player.getName());
+				Bukkit.broadcastMessage("still alibe");
 			}
 		}
 
