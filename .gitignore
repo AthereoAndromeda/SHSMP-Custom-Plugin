@@ -1,4 +1,8 @@
 others
-refs
-SHSMP.jar
+lib
+target
 *.todo
+.classpath
+.settings
+.project
+dist
