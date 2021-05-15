@@ -1,12 +1,21 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
-    
     <groupId>me.athereo.shsmp</groupId>
     <artifactId>shsmp</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
+
+    <name>SHSMP</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
 
     <repositories>
-    <!-- This adds the Spigot Maven repository to the build -->
+        <!-- This adds the Spigot Maven repository to the build -->
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -18,9 +27,27 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.3-R0.1-SNAPSHOT</version>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
+
+    <build>
+        <!-- <directory>${project.basedir}/target</directory> -->
+        <!-- <outputDirectory>${project.basedir}/dist</outputDirectory> -->
+        <sourceDirectory>${project.basedir}/src/main/java/</sourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <configuration>
+                    <outputDirectory>${project.basedir}/dist/</outputDirectory>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
 </project>
