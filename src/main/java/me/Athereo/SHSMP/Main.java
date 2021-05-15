@@ -36,7 +36,7 @@ public class Main extends JavaPlugin {
 
         // Add Recipes
         Bukkit.addRecipe(recipes.new LightGapple().getRecipe());
-        Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());  
+        Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());
     }
 
     @Override
@@ -48,7 +48,6 @@ public class Main extends JavaPlugin {
                 // Gets player
                 Player revivedPlayer = Bukkit.getPlayer(UUID.fromString(args[0]));
                 Player revivingPlayer = (Player) sender;
-
 
                 // Teleport revivedPlayer to revivingPlayer
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
