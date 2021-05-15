@@ -1,9 +1,4 @@
 {
-    "java.project.referencedLibraries": [
-        "lib/**/*.jar",
-        "refs/**/*.jar"
-    ],
-    "java.project.sourcePaths": [
-        "src"
-    ]
-}
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.dependency.syncWithFolderExplorer": false,
+} 
