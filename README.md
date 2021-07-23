@@ -1,6 +1,8 @@
 # SHSMP Plugin
 A custom Spigot plugin for Semi-Hardcore Survival Multiplayer Worlds.
 
+[![Java CI with Maven](https://github.com/redstripez08/SHSMP-Custom-Plugin/actions/workflows/maven.yml/badge.svg)](https://github.com/redstripez08/SHSMP-Custom-Plugin/actions/workflows/maven.yml)
+
 Pure Hardcore worlds can be hard to sustain and keep alive with a small community, whereas
 a Survival world can be too relaxed or casual for more experienced players. So to strike the
 balance, I decided to create a custom plugin for a Semi-Hardcore world.
