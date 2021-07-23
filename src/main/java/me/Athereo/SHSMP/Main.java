@@ -58,8 +58,8 @@ public class Main extends JavaPlugin {
                 Player revivingPlayer = (Player) sender;
 
                 // Teleport revivedPlayer to revivingPlayer
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                        "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
+                String tpCommand = "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName();
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), tpCommand);
 
                 // Changes gamemode which "revives" the player. Also sets them to max health and
                 // hunger
@@ -76,18 +76,20 @@ public class Main extends JavaPlugin {
                         "&b" + revivedPlayer.getDisplayName() + " was revived by " + revivingPlayer.getDisplayName());
                 Bukkit.broadcastMessage(revivedMessage);
 
-                DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("DiscordWebhook"));
-                EmbedObject embed = new EmbedObject()
-                        .setTitle(revivedPlayer.getDisplayName() + " Has been Resurrected!")
-                        .setDescription("Revived by " + revivingPlayer.getDisplayName());
+                if (this.getConfig().getBoolean("EnableDiscordWebhook")) {
+                    DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("DiscordWebhook"));
+                    EmbedObject embed = new EmbedObject()
+                            .setTitle(revivedPlayer.getDisplayName() + " Has been Resurrected!")
+                            .setDescription("Revived by " + revivingPlayer.getDisplayName());
 
-                webhook.addEmbed(embed);
+                    webhook.addEmbed(embed);
 
-                // Send Discord Webhook that someone has been revived
-                try {
-                    webhook.execute();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    // Send Discord Webhook that someone has been revived
+                    try {
+                        webhook.execute();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 return true;
