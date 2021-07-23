@@ -34,12 +34,12 @@ public class MyListener implements Listener {
 
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
-		
+
 	}
 
-    @EventHandler
-    public void onCraft(CraftItemEvent event) throws Exception {
-        if (event.isCancelled() || !(event.getWhoClicked() instanceof Player)) {
+	@EventHandler
+	public void onCraft(CraftItemEvent event) throws Exception {
+		if (event.isCancelled() || !(event.getWhoClicked() instanceof Player)) {
 			return;
 		}
 
@@ -47,10 +47,11 @@ public class MyListener implements Listener {
 		String NecroName = recipes.new Necronomicon().getItem().getItemMeta().getDisplayName();
 
 		// Going to make it check for lore instead soon, because it is possible
-		// someone just changes the name using Anvil and get 
+		// someone just changes the name using Anvil and get
 		if (NecroName.equals(eventRecipeName)) {
 			Player player = (Player) event.getWhoClicked();
-			String msg = ChatColor.translateAlternateColorCodes('&', "&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
+			String msg = ChatColor.translateAlternateColorCodes('&',
+					"&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
 
 			Bukkit.broadcastMessage(msg);
 			sendWebhook(event);
@@ -59,18 +60,16 @@ public class MyListener implements Listener {
 
 	@EventHandler
 	public void onKill(PlayerDeathEvent event) {
-        if (!(event.getEntity() instanceof Player)) {
+		if (!(event.getEntity() instanceof Player)) {
 			return;
 		}
 
 		event.setDeathMessage(ChatColor.RED + "You are now dead, sad.");
 
-		System.out.println("A player died");
-
 		Player player = event.getEntity();
 
 		// Player killer = player.getKiller();
-		
+
 		updateScoreboard();
 
 		// aliveTeam.removeEntry(player.getDisplayName());
@@ -87,9 +86,9 @@ public class MyListener implements Listener {
 		// Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		// scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
 
-        // Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
+		// Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
 
-        // aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
+		// aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
 		// aliveTeam.addEntry(player.getName());
 
 		// player.setScoreboard(scoreboard);
@@ -104,44 +103,50 @@ public class MyListener implements Listener {
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team modify SHSMP.Dead color dark_red");
 	}
 
-
 	/**
 	 * Sends webhook when a necronomicon has been crafted.
+	 * 
 	 * @param event
 	 * @throws Exception
 	 */
-    private void sendWebhook(CraftItemEvent event) throws Exception {
+	private void sendWebhook(CraftItemEvent event) throws Exception {
 		Player player = (Player) event.getWhoClicked();
 
-        DiscordWebhook webhook = new DiscordWebhook(plugin.getConfig().getString("DiscordWebhook"));
-		EmbedObject embed = new EmbedObject()
-			.setTitle(player.getName() + " has Crafted a Necronomicon!")
-			.setDescription("A player can now be revived!");
-		
+		DiscordWebhook webhook = new DiscordWebhook(plugin.getConfig().getString("DiscordWebhook"));
+		EmbedObject embed = new EmbedObject().setTitle(player.getName() + " has Crafted a Necronomicon!")
+				.setDescription("A player can now be revived!");
+
 		webhook.addEmbed(embed);
-        webhook.execute();
-    }
+		webhook.execute();
+	}
 
 	/**
 	 * Creates a scoreboard for the player
+	 * 
 	 * @param player
 	 */
 	private void createScoreboard(Player player) {
 		Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 		// scoreboard.registerNewObjective("Bruh", "Dummy", "dumboi");
 
-        Team deadTeam = scoreboard.registerNewTeam("SHSMP.Dead");
-        Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
+		Team deadTeam = scoreboard.registerNewTeam("SHSMP.Dead");
+		Team aliveTeam = scoreboard.registerNewTeam("SHSMP.Alive");
 
-        deadTeam.setPrefix(ChatColor.DARK_RED + "[Dead] " + ChatColor.RESET);
-        aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
+		deadTeam.setPrefix(ChatColor.DARK_RED + "[Dead] " + ChatColor.RESET);
+		aliveTeam.setPrefix(ChatColor.DARK_AQUA + "[Alive] " + ChatColor.RESET);
 
 		for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+			String name = onlinePlayer.getDisplayName();
+
 			if (onlinePlayer.isDead()) {
-				deadTeam.addEntry(player.getName());
+				aliveTeam.removeEntry(name);
+				deadTeam.addEntry(name);
+
 				Bukkit.broadcastMessage("Guy died");
 			} else {
-				aliveTeam.addEntry(player.getName());
+				deadTeam.removeEntry(name);
+				aliveTeam.addEntry(name);
+
 				Bukkit.broadcastMessage("still alibe");
 			}
 		}
@@ -149,7 +154,7 @@ public class MyListener implements Listener {
 		player.setScoreboard(scoreboard);
 	}
 
-	private void updateScoreboard() {
+	public void updateScoreboard() {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			createScoreboard(player);
 		}
