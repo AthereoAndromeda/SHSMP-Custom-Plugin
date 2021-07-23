@@ -114,7 +114,10 @@ public class Main extends JavaPlugin {
             String itemInHandName = itemInMainHand.hasItemMeta() ? itemInMainHand.getItemMeta().getDisplayName() : null;
 
             // Checks if player is already holding Necronomicon
-            if (itemInHandName == null || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName())) {
+            Boolean itemHandCondition = itemInHandName == null 
+                || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName());
+
+            if (itemHandCondition) {
                 sender.sendMessage(necroOnly);
                 return true;
             }
