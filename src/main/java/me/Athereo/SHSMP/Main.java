@@ -1,6 +1,8 @@
 package me.Athereo.SHSMP;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -20,23 +22,29 @@ import me.Athereo.SHSMP.DiscordWebhook.EmbedObject;
 public class Main extends JavaPlugin {
     public FileConfiguration config;
     public MyRecipes recipes;
+    public MyListener listener;
 
     @Override
     public void onEnable() {
         this.config = getConfig();
         this.recipes = new MyRecipes(this);
+        this.listener = new MyListener(this);
         configFileHandler();
-
-        // TODO fix team assignment
-
 
         // Adds the event handlers
         PluginManager bukkitPluginManager = Bukkit.getPluginManager();
-        bukkitPluginManager.registerEvents(new MyListener(this), this);
+        bukkitPluginManager.registerEvents(listener, this);
 
         // Add Recipes
         Bukkit.addRecipe(recipes.new LightGapple().getRecipe());
         Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                listener.updateScoreboard();
+            }
+        }, 0, 10000);
     }
 
     @Override
@@ -50,24 +58,28 @@ public class Main extends JavaPlugin {
                 Player revivingPlayer = (Player) sender;
 
                 // Teleport revivedPlayer to revivingPlayer
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                        "teleport " + revivedPlayer.getDisplayName() + " " + revivingPlayer.getDisplayName());
 
-                // Changes gamemode which "revives" the player. Also sets them to max health and hunger
+                // Changes gamemode which "revives" the player. Also sets them to max health and
+                // hunger
                 revivedPlayer.setGameMode(GameMode.SURVIVAL);
                 revivedPlayer.setHealth(revivedPlayer.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
                 revivedPlayer.setFoodLevel(20);
 
                 // Replace Necronomicon with Used Necronomicon
-                revivingPlayer.getInventory().setItemInMainHand(recipes.new UsedNecronomicon(revivedPlayer, revivingPlayer).getItem());
+                revivingPlayer.getInventory()
+                        .setItemInMainHand(recipes.new UsedNecronomicon(revivedPlayer, revivingPlayer).getItem());
 
                 // Broadcast Message that someone has been revived
-                String revivedMessage = ChatColor.translateAlternateColorCodes('&', "&b" + revivedPlayer.getDisplayName() + " was revived by " + revivingPlayer.getDisplayName());
+                String revivedMessage = ChatColor.translateAlternateColorCodes('&',
+                        "&b" + revivedPlayer.getDisplayName() + " was revived by " + revivingPlayer.getDisplayName());
                 Bukkit.broadcastMessage(revivedMessage);
 
                 DiscordWebhook webhook = new DiscordWebhook(getConfig().getString("DiscordWebhook"));
                 EmbedObject embed = new EmbedObject()
-                    .setTitle(revivedPlayer.getDisplayName() + " Has been Resurrected!")
-                    .setDescription("Revived by " + revivingPlayer.getDisplayName());
+                        .setTitle(revivedPlayer.getDisplayName() + " Has been Resurrected!")
+                        .setDescription("Revived by " + revivingPlayer.getDisplayName());
 
                 webhook.addEmbed(embed);
 
@@ -95,10 +107,9 @@ public class Main extends JavaPlugin {
             ItemStack necronomicon = recipes.new Necronomicon().getItem();
             ItemStack itemInMainHand = player.getInventory().getItemInMainHand();
 
-            // Checks if Item in hand has ItemMeta. If true, returns display name, else it returns null
-            String itemInHandName = itemInMainHand.hasItemMeta() 
-                ? itemInMainHand.getItemMeta().getDisplayName()
-                : null;
+            // Checks if Item in hand has ItemMeta. If true, returns display name, else it
+            // returns null
+            String itemInHandName = itemInMainHand.hasItemMeta() ? itemInMainHand.getItemMeta().getDisplayName() : null;
 
             // Checks if player is already holding Necronomicon
             if (itemInHandName == null || !itemInHandName.equals(necronomicon.getItemMeta().getDisplayName())) {
