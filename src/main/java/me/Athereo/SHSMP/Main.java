@@ -130,7 +130,8 @@ public class Main extends JavaPlugin {
      * Handles The config.yml setup
      */
     private void configFileHandler() {
-        config.addDefault("DiscordWebhook", "Insert Webhook here");
+        config.addDefault("EnableDiscordWebhook", false);
+        config.addDefault("DiscordWebhookLink", "Insert Webhook here");
         config.addDefault("LightNecronomicon", false);
 
         config.options().copyDefaults(true);

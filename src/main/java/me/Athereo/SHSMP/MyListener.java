@@ -112,12 +112,16 @@ public class MyListener implements Listener {
 	private void sendWebhook(CraftItemEvent event) throws Exception {
 		Player player = (Player) event.getWhoClicked();
 
-		DiscordWebhook webhook = new DiscordWebhook(plugin.getConfig().getString("DiscordWebhook"));
-		EmbedObject embed = new EmbedObject().setTitle(player.getName() + " has Crafted a Necronomicon!")
-				.setDescription("A player can now be revived!");
+		Boolean isWebhookEnabled = plugin.getConfig().getBoolean("EnableDiscordWebhook");
 
-		webhook.addEmbed(embed);
-		webhook.execute();
+		if (isWebhookEnabled) {
+			DiscordWebhook webhook = new DiscordWebhook(plugin.getConfig().getString("DiscordWebhook"));
+			EmbedObject embed = new EmbedObject().setTitle(player.getName() + " has Crafted a Necronomicon!")
+					.setDescription("A player can now be revived!");
+
+			webhook.addEmbed(embed);
+			webhook.execute();
+		}
 	}
 
 	/**
