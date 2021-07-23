@@ -1,8 +1,6 @@
 package me.Athereo.SHSMP;
 
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -38,13 +36,6 @@ public class Main extends JavaPlugin {
         // Add Recipes
         Bukkit.addRecipe(recipes.new LightGapple().getRecipe());
         Bukkit.addRecipe(recipes.new Necronomicon().getRecipe());
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                listener.updateScoreboard();
-            }
-        }, 0, 10000);
     }
 
     @Override
