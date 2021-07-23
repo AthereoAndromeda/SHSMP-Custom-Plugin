@@ -50,8 +50,8 @@ public class MyListener implements Listener {
 		// someone just changes the name using Anvil and get
 		if (NecroName.equals(eventRecipeName)) {
 			Player player = (Player) event.getWhoClicked();
-			String msg = ChatColor.translateAlternateColorCodes('&',
-					"&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r");
+			String rawMessage = "&3" + player.getDisplayName() + " &rhas crafted a &l&8Necronomicon.&r";
+			String msg = ChatColor.translateAlternateColorCodes('&', rawMessage);
 
 			Bukkit.broadcastMessage(msg);
 			sendWebhook(event);
