@@ -54,3 +54,10 @@ Set to `true` to make Necronomicon recipe use 4 Ench Gapples rather than 8.
 
 ### Example
 <!-- Pictue of config.yml -->
+
+## Building from source
+Building from source is very simple, simply have Maven installed, and you can
+package the plugin into a jar
+```bash
+mvn package
+```
