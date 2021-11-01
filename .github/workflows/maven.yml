@@ -21,5 +21,12 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+    - name: Upload JAR
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: SHSMP.jar
+        path: ./dist/SHSMP*.jar
