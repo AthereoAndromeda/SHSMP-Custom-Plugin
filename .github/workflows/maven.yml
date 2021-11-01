@@ -28,5 +28,4 @@ jobs:
     - name: Upload JAR
       uses: actions/upload-artifact@v2.2.4
       with:
-        name: SHSMP.jar
         path: ./dist/SHSMP*.jar
